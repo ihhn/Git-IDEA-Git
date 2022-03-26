@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+">
+    <!--表示扫描com.agrypig包,及其子包下的注解-->
+    <context:component-scan base-package="com.angrypig">
+        <!--之所以不扫描Controller，就是因为Controller是要交给SpringMVC扫描的-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+
+
+
+
+
+
+    <!--bean注册_________________________________________________________________________________________________________-->
+
+
+
+
+    <!--spring管理mybatis_________________________________________________________________________________________________-->
+    <!--注册德鲁伊数据库连接池-->
+    <context:property-placeholder location="classpath:mybatis.properties"/>  <!--引入外部文件-->
+    <!--从配置文件中读取属性注入到连接池中-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${conn.driverClass}"></property>
+        <property name="url" value="${conn.url}"></property>
+        <property name="username" value="${conn.userName}"></property>
+        <property name="password" value="${conn.password}"></property>
+    </bean>
+
+
+    <!--创建SqlSessionFactory SqlSessionFactoryBean-->
+    <bean id="sqlSessionFactoryBean" class="com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean">
+        <!--指定mybatis的核心配置文件, 这一步不是必须的-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+        <property name="dataSource" ref="dataSource"></property>
+
+        <!--相当于mybatis核心配置文件中的typeAliases标签设置-->
+        <property name="typeAliasesPackage" value="com.angrypig.entity"></property>
+
+        <!--设置映射文件的位置-->
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:com/angrypig/dao/*Mapper.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--创建DAO对象 MapperScannerConfigure-->
+    <!--配置了该bean后,Spring工厂会帮我们自动创建Mapper(DAO)对象,
+        有需要的话直接从Spring工厂中获取即可.
+     bean(对象)id为 首字母小写的mapper接口名-->
+    <bean id="scanner"  class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName"  value="sqlSessionFactoryBean"></property>
+        <property name="basePackage" value="com.angrypig.dao"></property>
+    </bean>
+
+
+
+
+
+
+
+
+
+
+
+    <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<!--    &lt;!&ndash;向spring工厂注册自定义类型转换器&ndash;&gt;
+    &lt;!&ndash;先把类型转换器注册到spring工厂中&ndash;&gt;
+    <bean id="myDateConverter" class="com.angrypig.utils.MyDateConverter"/>
+    &lt;!&ndash;告知spring工厂, 我们注册了一个类型转换器, 这里的id比较特殊, 不能自定义, 要按以下名字写&ndash;&gt;
+    <bean id="conversionService"
+          class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <ref bean="myDateConverter"/>
+            </set>
+        </property>
+    </bean>-->
+
+    <!--AOP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+    <!--proxy-target-class属性为true表示使用cglib代理,否则表示使用jdk代理-->
+
+
+</beans>
