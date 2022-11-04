@@ -6,5 +6,6 @@ public class GitTest {
         System.out.println("第2次在IDEA中使用git..");
         System.out.println("第3次在IDEA中使用git..");
         System.out.println("hot-fix");
+        System.out.println("hot-fix2");
     }
 }
